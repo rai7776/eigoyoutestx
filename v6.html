@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教科書Units 5-7 テスト v5</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --bg-color: #f4f7f6;
+            --border-color: #dee2e6;
+        }
+        body {
+            font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--dark-color);
+            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; overflow-x: hidden; font-size: 16px;
+        }
+        .container {
+            max-width: 700px; width: 100%; background: #fff; padding: 20px 30px 30px; border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12); margin-top: 20px; position: relative;
+        }
+        h1, h2, h3 { text-align: center; }
+        h1 { color: var(--dark-color); margin: 10px 0 20px; }
+        h2 { color: var(--dark-color); margin-bottom: 20px; font-size: 1.5em; }
+        h3 { font-size: 1.2em; color: var(--dark-color); margin-bottom: 15px; }
+        .content { display: none; }
+        .content.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .settings-group { margin-bottom: 25px; }
+        .settings-group h3 {
+            border-bottom: 2px solid var(--light-color); padding-bottom: 10px; margin-bottom: 15px; font-size: 1.1em;
+        }
+        .selection-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .selection-btn {
+            padding: 10px 15px; font-size: 1em; font-weight: bold; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s ease; border: 2px solid var(--border-color); background-color: #fff; color: var(--dark-color);
+            flex-grow: 1;
+        }
+        .selection-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .home-menu { display: flex; flex-direction: column; gap: 15px; margin-top: 30px;}
+        .home-menu button {
+            width: 100%; padding: 18px; font-size: 1.4em; font-weight: bold; border-radius: 12px;
+            cursor: pointer; transition: background-color 0.2s ease; border: none; color: white;
+        }
+        #start-quiz-btn { background-color: var(--success-color); }
+        #show-wordbook-btn { background-color: var(--primary-color); }
+        #review-mistakes-btn { background-color: var(--danger-color); }
+        .home-menu button:disabled { background-color: var(--secondary-color); opacity: 0.6; cursor: not-allowed; }
+        
+        .quiz-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; font-size: 1.1em; font-weight: bold;
+        }
+        .header-btn {
+             background: var(--secondary-color); color: white; border: none; padding: 8px 15px;
+             border-radius: 8px; cursor: pointer; font-size: 0.9em; margin: 0 4px;
+        }
+        .header-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #question-text, #unscramble-context {
+            font-size: 1.4em; margin-bottom: 25px; padding: 15px;
+            background-color: var(--light-color); border-radius: 8px; line-height: 1.5;
+        }
+        .answer-buttons { display: grid; gap: 15px; margin-bottom: 20px; grid-template-columns: 1fr; }
+        .answer-button {
+            padding: 18px; font-size: 1.2em; font-weight: bold; background-color: #fff;
+            border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .answer-button:disabled { cursor: not-allowed; opacity: 0.8; }
+        .correct-answer { border-color: var(--success-color) !important; background-color: #e8f5e9 !important; }
+        .wrong-answer { border-color: var(--danger-color) !important; background-color: #ffebee !important; }
+        #explanation {
+            margin-top: 15px; padding: 15px; border-radius: 8px; font-size: 1.05em;
+            min-height: 50px; opacity: 0; transition: opacity 0.4s; text-align: left;
+        }
+        #explanation b { font-size: 1.1em; }
+        #explanation.show { opacity: 1; }
+        #explanation.correct { background-color: #e8f5e9; color: #1c5c20; }
+        #explanation.incorrect { background-color: #ffebee; color: #b71c1c; }
+
+        #user-answer-display {
+            border: 2px dashed var(--border-color); border-radius: 8px; padding: 20px; min-height: 50px;
+            margin-bottom: 20px; font-size: 1.4em; font-weight: bold; color: var(--primary-color); word-wrap: break-word;
+        }
+        #word-fragments { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .word-fragment {
+            padding: 10px 15px; font-size: 1.2em; background-color: #fff; border: 2px solid var(--secondary-color);
+            color: var(--secondary-color); border-radius: 8px; cursor: pointer; font-weight: bold;
+        }
+        .word-fragment:disabled { opacity: 0.4; cursor: not-allowed; }
+        .unscramble-controls { display: flex; gap: 10px; justify-content: center; }
+
+        #quiz-finished { padding: 20px 0; text-align: center; }
+        #final-score { font-size: 1.8em; font-weight: bold; margin-bottom: 20px; }
+        .result-buttons { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-top: 25px; }
+        .result-buttons button {
+            color: white; border: none; padding: 15px 30px; border-radius: 8px;
+            cursor: pointer; font-size: 1.1em; width: 80%; max-width: 300px;
+        }
+        #session-mistake-review-btn { background-color: var(--danger-color); }
+        #go-to-home-btn { background: var(--primary-color); }
+
+        .view-toggle { text-align: center; margin-bottom: 20px; }
+        .view-btn { padding: 8px 16px; border: 1px solid var(--border-color); background: white; cursor: pointer; border-radius: 5px; font-size: 0.9em; }
+        .view-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .view { display: none; }
+        .view.active { display: block; }
+        .word-cards-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 10px 0; }
+        .word-card { height: 120px; background-color: transparent; cursor: pointer; perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 10px; }
+        .word-card.flipped .card-inner { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center;
+            justify-content: center; border-radius: 10px; font-size: 1.2em; font-weight: bold; padding: 10px;
+            box-sizing: border-box; text-align: center;
+        }
+        .card-front { background-color: white; border: 1px solid var(--border-color); color: var(--dark-color); }
+        .card-back { background-color: var(--primary-color); color: white; transform: rotateY(180deg); }
+        #word-list-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        #word-list-table th, #word-list-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        #word-list-table th { background-color: var(--light-color); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="main-content">
+            <div id="home" class="content active">
+                <h1>教科書 Units 5-7 テスト</h1>
+                <div class="settings-group">
+                    <h3>1. Unitを選ぶ</h3>
+                    <div class="selection-buttons" id="unit-selection">
+                        <button class="selection-btn active" data-unit="unit5">Unit 5</button>
+                        <button class="selection-btn" data-unit="unit6">Unit 6</button>
+                        <button class="selection-btn" data-unit="unit7">Unit 7</button>
+                        <button class="selection-btn" data-unit="all">All Units</button>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h3>2. 問題のジャンルを選ぶ</h3>
+                    <div class="selection-buttons" id="filter-selection">
+                        <button class="selection-btn active" data-filter="all">全て</button>
+                        <button class="selection-btn" data-filter="fill-in">空欄補充のみ</button>
+                        <button class="selection-btn" data-filter="unscramble">並び替えのみ</button>
+                        <button class="selection-btn" data-filter="tf">TFのみ</button>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h3>3. 出題順を選ぶ</h3>
+                    <div class="selection-buttons" id="order-selection">
+                        <button class="selection-btn active" data-order="textbook">教科書順</button>
+                        <button class="selection-btn" data-order="random">ランダム</button>
+                        <button class="selection-btn" data-order="perfect_random">完全ランダム</button>
+                    </div>
+                </div>
+                <div class="home-menu">
+                    <button id="start-quiz-btn">テストを始める</button>
+                    <button id="show-wordbook-btn">単語帳をみる</button>
+                    <button id="review-mistakes-btn">保存された復習テスト</button>
+                </div>
+            </div>
+            
+            <div id="wordbook" class="content">
+                 <div class="quiz-header">
+                    <button class="header-btn" id="wordbook-home-btn">ホームに戻る</button>
+                </div>
+                <h2>単語帳</h2>
+                <div class="view-toggle">
+                    <button id="card-view-btn" class="view-btn active">カード</button>
+                    <button id="list-view-btn" class="view-btn">一覧</button>
+                </div>
+                <div id="card-view" class="view active"><div class="word-cards-container"></div></div>
+                <div id="list-view" class="view">
+                    <table id="word-list-table">
+                        <thead><tr><th>英単語</th><th>主な意味</th></tr></thead><tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="quiz-area" class="content">
+                <div class="quiz-header">
+                    <div>
+                        <button class="header-btn" id="exit-quiz-btn">ホーム</button>
+                        <button class="header-btn" id="prev-question-btn">前の問題へ</button>
+                    </div>
+                    <div id="quiz-progress"></div>
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+
+            <div id="quiz-finished" class="content">
+                <h2 id="result-title">テスト完了！</h2>
+                <p id="final-score"></p>
+                <div class="result-buttons">
+                    <button id="session-mistake-review-btn" style="display: none;">間違えた問題だけ復習</button>
+                    <button id="go-to-home-btn">ホームに戻る</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// --- DATA SECTION ---
+const allQuizData = {
+    unit5: [
+        { type: 'fill-in', id: '5-1-A', question: "My friend has started a travel agency in the ( A ) area of Helsinki...", choices: ['improve', 'surrounding', 'required', 'apply for', 'facilitated'], answer: 'surrounding', explanation: "`surrounding area` で「周辺地域」という意味になります。" },
+        { type: 'fill-in', id: '5-1-B', question: "My Finnish language skills are not so poor but I need to ( B ) for business use.", choices: ['improve', 'surrounding', 'required', 'apply for', 'facilitated'], answer: 'improve', explanation: "ビジネスで使うために語学力を「向上させる」必要があるので `improve` が適切です。" },
+        { type: 'fill-in', id: '5-1-C', question: "Business course content is ( C ) with Finnish language instruction.", choices: ['improve', 'surrounding', 'required', 'apply for', 'facilitated'], answer: 'facilitated', explanation: "ビジネスコンテンツの学習がフィンランド語指導によって「促進される」ため `facilitated` が入ります。" },
+        { type: 'fill-in', id: '5-1-D', question: "...it's OK to ( D ) the programme on their web page.", choices: ['improve', 'surrounding', 'required', 'apply for', 'facilitated'], answer: 'apply for', explanation: "プログラムに「申し込む」という文脈なので `apply for` が正解です。" },
+        { type: 'fill-in', id: '5-1-E', question: "You are ( E ) to write a 500 word introduction in the Finnish language.", choices: ['improve', 'surrounding', 'required', 'apply for', 'facilitated'], answer: 'required', explanation: "応募の要件として、紹介文を書くことが「要求されている」ので `required` が適切です。" },
+        { type: 'unscramble', id: '5-2-A', context: "教科書の問題が不完全なため、単語を並べ替えて最も自然な文を完成させてください: ...she has [ ... ] to join her business...", words: ['me', 'asked', 'to', 'go', 'to', 'Finland'], answer: "asked me to go to Finland", explanation: "「彼女は私にフィンランドに来るよう頼んだ」という文になります。" },
+        { type: 'unscramble', id: '5-2-B', context: "That's perfect! I am [ ... ] the programme.", words: ['more', 'than', 'curious', 'to', 'participate', 'in'], answer: "more than curious to participate in", explanation: "`more than curious to ...` は「〜したくてたまらない」という強い願望を表す表現です。" },
+        { type: 'tf', id: '5-3-1', question: "Reiko's friend wants her to join her business.", answer: 'T', explanation: "正解です。Reikoが「she has asked me to join her business」と述べています。" },
+        { type: 'tf', id: '5-3-2', question: "Pirjo suggests that Reiko should join the programme, where she must study with Finnish students.", answer: 'F', explanation: "間違いです。プログラムはフィンランド人学生ではなく「foreign students (外国人学生)」向けです。" },
+        { type: 'tf', id: '5-3-3', question: "In the programme course contents are taught in English.", answer: 'F', explanation: "間違いです。指導言語は英語ではなく「simplified Finnish (簡単なフィンランド語)」です。" }
+    ],
+    unit6: [
+        { type: 'fill-in', id: '6-1-A', question: "...and has traditionally had a broad range of publicity, ( A ) income support, as well as health care and social services.", choices: ['advantage', 'qualified', 'unemployed', 'provided', 'relating to'], answer: 'provided', explanation: "福祉国家が提供する所得保障なので `provided` (提供された)が文脈に合います。" },
+        { type: 'fill-in', id: '6-1-B', question: "...the government is positively involved in getting ( B ) people back to work through training...", choices: ['advantage', 'qualified', 'unemployed', 'provided', 'relating to'], answer: 'unemployed', explanation: "政策の対象は「失業した (unemployed)」人々です。" },
+        { type: 'fill-in', id: '6-1-C', question: "Specific jobs ( C ) engineering and the IT fields often recruit foreign employees.", choices: ['advantage', 'qualified', 'unemployed', 'provided', 'relating to'], answer: 'relating to', explanation: "「エンジニアリングに関する」仕事という意味で `relating to` が適切です。" },
+        { type: 'fill-in', id: '6-1-D', question: "Yuriko: I am ( D ) in information processing, and am thinking of working in Sweden.", choices: ['advantage', 'qualified', 'unemployed', 'provided', 'relating to'], answer: 'qualified', explanation: "自分のスキルとして情報処理の「資格がある (qualified)」と述べています。" },
+        { type: 'fill-in', id: '6-1-E', question: "...speaking English will not give you much of an ( E ) over Swedes.", choices: ['advantage', 'qualified', 'unemployed', 'provided', 'relating to'], answer: 'advantage', explanation: "英語が話せても大きな「利点 (advantage)」にはならない、という文脈です。" },
+        { type: 'unscramble', id: '6-2-A', context: "My class, \"Cross-cultural Understanding,\" [ ... ] concerning the working conditions in a foreign country.", words: ['requires', 'us', 'to', 'give', 'a', 'presentation'], answer: "requires us to give a presentation", explanation: "`require + 人 + to do` の形で「（人）に〜することを要求する」という意味になります。" },
+        { type: 'unscramble', id: '6-2-B', context: "You might also [ ... ] such as northern Sweden...", words: ['consider', 'going', 'to', 'less', 'populated', 'regions'], answer: "consider going to less populated regions", explanation: "`consider + 〜ing` の形で「〜することを検討する」という意味になります。" },
+        { type: 'tf', id: '6-3-1', question: "Yuriko will probably move to Sweden in the near future.", answer: 'F', explanation: "間違いです。Yurikoは寒い気候が嫌なので、スウェーデンに行くのをやめました。" },
+        { type: 'tf', id: '6-3-2', question: "Being fluent in English greatly works to an immigrant's advantage when applying for a job in Sweden.", answer: 'F', explanation: "間違いです。Erikは「not give you much of an advantage (大したアドバンテージにはならない)」と述べています。" },
+        { type: 'tf', id: '6-3-3', question: "The labor market in Sweden is open to immigrants.", answer: 'T', explanation: "正解です。Erikはスウェーデンには「open-door immigration policy (門戸開放の移民政策)」があると述べています。" }
+    ],
+    unit7: [
+        { type: 'fill-in', id: '7-1-A', question: "Which company do you have in ( A ) as your future prospective place of employment?", choices: ['broaden', 'mind', 'originally', 'pity', 'welcome'], answer: 'mind', explanation: "`have in mind` は「〜を考えている」という定型表現です。" },
+        { type: 'fill-in', id: '7-1-B', question: "...large-scale companies which were ( B ) established as state companies, such as Gazprom and LUKOIL.", choices: ['broaden', 'mind', 'originally', 'pity', 'welcome'], answer: 'originally', explanation: "ロシアの大企業が「元々は (originally)」国営だったという文脈です。" },
+        { type: 'fill-in', id: '7-1-C', question: "However, most Japanese students don't seem to ( C ) that trend.", choices: ['broaden', 'mind', 'originally', 'pity', 'welcome'], answer: 'welcome', explanation: "日本の学生がそのトレンドを「歓迎して (welcome)」はいない、という文脈です。" },
+        { type: 'fill-in', id: '7-1-D', question: "Yuri: That's a ( D )! I think working at foreign companies is fun...", choices: ['broaden', 'mind', 'originally', 'pity', 'welcome'], answer: 'pity', explanation: "`That's a pity!` で「それは残念だ」という気持ちを表す定型表現です。" },
+        { type: 'fill-in', id: '7-1-E', question: "...gives you an opportunity to ( E ) your outlook.", choices: ['broaden', 'mind', 'originally', 'pity', 'welcome'], answer: 'broaden', explanation: "外資系で働くことで視野を「広げる (broaden)」機会になる、という文脈です。" },
+        { type: 'unscramble', id: '7-2-A', context: "Kanako: Now I understand [ ... ] Japanese and German.", words: ['why', "you've", 'been', 'learning', 'to', 'speak'], answer: "why you've been learning to speak", explanation: "`understand` の目的語として `why` で始まる間接疑問文の形です。" },
+        { type: 'unscramble', id: '7-2-B', context: "That is what we call the onset of borderless job hunting [ ... ], too.", words: ['which', 'is', 'starting', 'to', 'become', 'popular', 'in', 'Japan'], answer: "which is starting to become popular in Japan", explanation: "直前の名詞を説明する関係代名詞 `which` を使った文です。" },
+        { type: 'tf', id: '7-3-1', question: "Yuri is planning to work for an automobile company outside of Russia.", answer: 'F', explanation: "間違いです。Yuriは「here in Moscow (ここモスクワで)」働きたいと述べており、ロシア国外ではありません。" },
+        { type: 'tf', id: '7-3-2', question: "Huge Russian companies are still more popular than foreign companies among Russian students.", answer: 'T', explanation: "正解です。「many students」がロシア企業、「a certain number」が外資系を望んでおり、まだロシア企業の方が人気だと読み取れます。" },
+        { type: 'tf', id: '7-3-3', question: "Kanako is willing to work at a foreign company.", answer: 'F', explanation: "間違いです。Kanakoは自分自身を含め「a little too timid (少し内気すぎる)」と述べています。" }
+    ]
+};
+const wordbookData = [
+    { word: 'advantage', meaning: '利点、有利な点' }, { word: 'apply for', meaning: '〜に申し込む、応募する' },
+    { word: 'broaden', meaning: '広げる' }, { word: 'facilitated', meaning: '促進された、容易になった' },
+    { word: 'improve', meaning: '向上させる、改善する' }, { word: 'mind', meaning: '精神、注意、気にする' },
+    { word: 'originally', meaning: '元々は、本来は' }, { word: 'pity', meaning: '哀れみ、残念なこと' },
+    { word: 'provided', meaning: '提供された' }, { word: 'qualified', meaning: '資格のある、適任の' },
+    { word: 'relating to', meaning: '〜に関する' }, { word: 'required', meaning: '要求された、必須の' },
+    { word: 'surrounding', meaning: '周辺の、囲んでいる' }, { word: 'unemployed', meaning: '失業した、職のない' },
+    { word: 'welcome', meaning: '歓迎する' }
+].sort((a, b) => a.word.localeCompare(b.word));
+const ALL_QUESTIONS = [].concat(...Object.values(allQuizData));
+
+document.addEventListener('DOMContentLoaded', () => {
+    let state = {
+        selectedUnit: 'unit5', selectedOrder: 'textbook', selectedFilter: 'all',
+        currentQuiz: [], currentQuestionIndex: 0, answers: [],
+        isQuizActive: false, isReviewMode: false, answerTimer: null,
+        userUnscrambleAnswer: [], sessionMistakes: []
+    };
+    let savedMistakeIds = [];
+
+    const elements = {
+        unitSelection: document.getElementById('unit-selection'), orderSelection: document.getElementById('order-selection'),
+        filterSelection: document.getElementById('filter-selection'), startQuizBtn: document.getElementById('start-quiz-btn'),
+        showWordbookBtn: document.getElementById('show-wordbook-btn'), reviewMistakesBtn: document.getElementById('review-mistakes-btn'),
+        quizProgress: document.getElementById('quiz-progress'), quizContainer: document.getElementById('quiz-container'),
+        finalScore: document.getElementById('final-score'), resultTitle: document.getElementById('result-title'),
+        goToHomeBtn: document.getElementById('go-to-home-btn'), exitQuizBtn: document.getElementById('exit-quiz-btn'),
+        prevQuestionBtn: document.getElementById('prev-question-btn'),
+        wordbookHomeBtn: document.getElementById('wordbook-home-btn'), cardViewBtn: document.getElementById('card-view-btn'),
+        listViewBtn: document.getElementById('list-view-btn'), wordCardsContainer: document.querySelector('.word-cards-container'),
+        wordListTbody: document.querySelector('#word-list-table tbody'),
+        sessionMistakeReviewBtn: document.getElementById('session-mistake-review-btn')
+    };
+
+    elements.unitSelection.addEventListener('click', (e) => handleSelection(e, 'unit'));
+    elements.orderSelection.addEventListener('click', (e) => handleSelection(e, 'order'));
+    elements.filterSelection.addEventListener('click', (e) => handleSelection(e, 'filter'));
+    elements.startQuizBtn.addEventListener('click', () => startQuiz(false));
+    elements.reviewMistakesBtn.addEventListener('click', () => startQuiz(true));
+    elements.goToHomeBtn.addEventListener('click', showHome);
+    elements.exitQuizBtn.addEventListener('click', showHome);
+    elements.prevQuestionBtn.addEventListener('click', goToPrevQuestion);
+    elements.showWordbookBtn.addEventListener('click', () => showContent('wordbook'));
+    elements.wordbookHomeBtn.addEventListener('click', showHome);
+    elements.cardViewBtn.addEventListener('click', () => toggleWordbookView(true));
+    elements.listViewBtn.addEventListener('click', () => toggleWordbookView(false));
+    elements.wordCardsContainer.addEventListener('click', (e) => e.target.closest('.word-card')?.classList.toggle('flipped'));
+    elements.sessionMistakeReviewBtn.addEventListener('click', startSessionMistakeReview);
+
+    function handleSelection(event, type) {
+        if (!event.target.classList.contains('selection-btn')) return;
+        event.target.parentElement.querySelectorAll('.selection-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        state[`selected${type.charAt(0).toUpperCase() + type.slice(1)}`] = event.target.dataset[type];
+    }
+    
+    function showContent(contentId) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.getElementById(contentId).classList.add('active');
+    }
+
+    function showHome() {
+        state.isQuizActive = false;
+        clearTimeout(state.answerTimer);
+        updateHomePage();
+        showContent('home');
+    }
+
+    function startQuiz(isReview) {
+        state.isReviewMode = isReview;
+        let questionPool;
+        if (isReview) {
+            questionPool = ALL_QUESTIONS.filter(q => savedMistakeIds.includes(q.id));
+        } else {
+            questionPool = (state.selectedUnit === 'all')
+                ? [...ALL_QUESTIONS]
+                : allQuizData[state.selectedUnit];
+        }
+
+        if (state.selectedFilter !== 'all' && !isReview) {
+            questionPool = questionPool.filter(q => q.type === state.selectedFilter);
+        }
+
+        if (questionPool.length === 0) {
+            alert(isReview ? '復習する問題がありません。' : '選択された条件に一致する問題がありません。');
+            return;
+        }
+
+        const order = state.selectedOrder;
+        state.currentQuiz = (order === 'random' || order === 'perfect_random' || isReview) 
+            ? [...questionPool].sort(() => 0.5 - Math.random()) 
+            : [...questionPool];
+        
+        state.currentQuestionIndex = 0;
+        state.answers = new Array(state.currentQuiz.length).fill(null);
+        state.sessionMistakes = [];
+        state.isQuizActive = true;
+        showContent('quiz-area');
+        drawQuestion();
+    }
+    
+    function startSessionMistakeReview() {
+        state.isReviewMode = true;
+        state.currentQuiz = [...new Set(state.sessionMistakes)];
+        state.currentQuestionIndex = 0;
+        state.answers = new Array(state.currentQuiz.length).fill(null);
+        state.sessionMistakes = [];
+        state.isQuizActive = true;
+        showContent('quiz-area');
+        drawQuestion();
+    }
+    
+    function goToPrevQuestion() {
+        if(state.currentQuestionIndex > 0) {
+            clearTimeout(state.answerTimer);
+            state.currentQuestionIndex--;
+            drawQuestion();
+        }
+    }
+
+    function drawQuestion() {
+        elements.prevQuestionBtn.disabled = state.currentQuestionIndex === 0;
+        if (!state.isQuizActive || state.currentQuestionIndex >= state.currentQuiz.length) {
+            showQuizResult();
+            return;
+        }
+
+        const question = state.currentQuiz[state.currentQuestionIndex];
+        elements.quizProgress.textContent = `第 ${state.currentQuestionIndex + 1} 問 / ${state.currentQuiz.length} 問`;
+        
+        const prevAnswer = state.answers[state.currentQuestionIndex];
+        switch(question.type) {
+            case 'fill-in': drawFillInQuestion(question, prevAnswer); break;
+            case 'unscramble': drawUnscrambleQuestion(question, prevAnswer); break;
+            case 'tf': drawTFQuestion(question, prevAnswer); break;
+        }
+    }
+    
+    function drawFillInQuestion(q, prevAnswer) {
+        const choices = (state.selectedOrder === 'perfect_random') ? [...q.choices].sort(() => 0.5 - Math.random()) : q.choices;
+        let questionText = q.question;
+        if (state.selectedOrder === 'perfect_random') {
+            questionText = questionText.replace(/\(\s*[A-E]\s*\)/, '( )');
+        }
+        const buttonsHTML = choices.map(choice => `<button class="answer-button" data-answer="${choice}">${choice}</button>`).join('');
+        elements.quizContainer.innerHTML = `<div id="question-text">${questionText}</div><div class="answer-buttons">${buttonsHTML}</div><div id="explanation"></div>`;
+        document.querySelectorAll('.answer-button').forEach(btn => btn.addEventListener('click', () => checkAnswer(btn.dataset.answer, q)));
+        if(prevAnswer) restoreAnsweredState(prevAnswer.givenAnswer, q);
+    }
+
+    function drawTFQuestion(q, prevAnswer) {
+        elements.quizContainer.innerHTML = `<div id="question-text">${q.question}</div><div class="answer-buttons"><button class="answer-button" data-answer="T">True</button><button class="answer-button" data-answer="F">False</button></div><div id="explanation"></div>`;
+        document.querySelectorAll('.answer-button').forEach(btn => btn.addEventListener('click', () => checkAnswer(btn.dataset.answer, q)));
+        if(prevAnswer) restoreAnsweredState(prevAnswer.givenAnswer, q);
+    }
+
+    function drawUnscrambleQuestion(q, prevAnswer) {
+        state.userUnscrambleAnswer = [];
+        const shuffledWords = [...q.words].sort(() => 0.5 - Math.random());
+        const fragmentsHTML = shuffledWords.map(word => `<button class="word-fragment">${word}</button>`).join('');
+        elements.quizContainer.innerHTML = `<div id="unscramble-context">${q.context}</div><div id="user-answer-display"></div><div id="word-fragments">${fragmentsHTML}</div><div class="unscramble-controls"><button class="answer-button" id="check-unscramble-btn">決定</button><button class="answer-button" id="reset-unscramble-btn" style="background-color: var(--secondary-color); color: white;">リセット</button></div><div id="explanation"></div>`;
+        
+        const userAnswerDisplay = document.getElementById('user-answer-display');
+        document.getElementById('word-fragments').addEventListener('click', (e) => {
+            if (e.target.classList.contains('word-fragment') && !e.target.disabled) {
+                state.userUnscrambleAnswer.push(e.target.textContent);
+                userAnswerDisplay.textContent = state.userUnscrambleAnswer.join(' ');
+                e.target.disabled = true;
+            }
+        });
+        document.getElementById('reset-unscramble-btn').addEventListener('click', () => {
+            state.userUnscrambleAnswer = [];
+            userAnswerDisplay.textContent = '';
+            document.querySelectorAll('.word-fragment').forEach(btn => btn.disabled = false);
+        });
+        document.getElementById('check-unscramble-btn').addEventListener('click', () => checkAnswer(state.userUnscrambleAnswer.join(' '), q));
+        if(prevAnswer) restoreAnsweredState(prevAnswer.givenAnswer, q);
+    }
+    
+    function restoreAnsweredState(givenAnswer, qData) {
+        checkAnswer(givenAnswer, qData, true);
+    }
+
+    function checkAnswer(selectedAnswer, questionData, isRestoring = false) {
+        if (!state.isQuizActive && !isRestoring) return;
+        clearTimeout(state.answerTimer);
+        const isCorrect = selectedAnswer === questionData.answer;
+        
+        state.answers[state.currentQuestionIndex] = { givenAnswer: selectedAnswer, isCorrect: isCorrect };
+        handleMistakes(isCorrect, questionData);
+
+        const explanationEl = document.getElementById('explanation');
+        document.querySelectorAll('.answer-button, .word-fragment, #check-unscramble-btn, #reset-unscramble-btn').forEach(btn => btn.disabled = true);
+        
+        let explanationHTML = '';
+        if (isCorrect) {
+            explanationHTML = `<b>正解！</b><br>${questionData.explanation || ''}`;
+            explanationEl.className = 'correct';
+        } else {
+            explanationHTML = `<b>不正解...</b> 正解は: <b>${questionData.answer}</b><br>${questionData.explanation || ''}`;
+            explanationEl.className = 'incorrect';
+        }
+        explanationEl.innerHTML = explanationHTML;
+        explanationEl.classList.add('show');
+        
+        if (questionData.type !== 'unscramble') {
+            document.querySelectorAll('.answer-button').forEach(btn => {
+                if(btn.dataset.answer === questionData.answer) btn.classList.add('correct-answer');
+                else if (btn.dataset.answer === selectedAnswer) btn.classList.add('wrong-answer');
+            });
+        }
+        
+        if (!isRestoring) {
+            state.answerTimer = setTimeout(() => {
+                state.currentQuestionIndex++;
+                drawQuestion();
+            }, 3000); // 少し長めにして解説を読めるように
+        }
+    }
+    
+    function handleMistakes(isCorrect, qData) {
+         if (isCorrect) {
+            if (state.isReviewMode) {
+                const index = savedMistakeIds.indexOf(qData.id);
+                if (index > -1) {
+                    savedMistakeIds.splice(index, 1);
+                    saveMistakes();
+                }
+            }
+        } else {
+            if (!state.sessionMistakes.some(m => m.id === qData.id)) {
+                state.sessionMistakes.push(qData);
+            }
+            if (!savedMistakeIds.includes(qData.id)) {
+                savedMistakeIds.push(qData.id);
+                saveMistakes();
+            }
+        }
+    }
+    
+    function showQuizResult() {
+        state.isQuizActive = false;
+        const score = state.answers.filter(a => a && a.isCorrect).length;
+        const total = state.currentQuiz.length;
+        elements.finalScore.textContent = `正解数: ${score} / ${total}`;
+        elements.resultTitle.textContent = (score === total) ? "全問正解！おめでとうございます！" : "テスト完了！";
+
+        elements.sessionMistakeReviewBtn.style.display = (state.sessionMistakes.length > 0) ? 'block' : 'none';
+        showContent('quiz-finished');
+    }
+
+    function generateWordbookViews() {
+        const cardsHTML = wordbookData.map(item => `<div class="word-card"><div class="card-inner"><div class="card-face card-front">${item.word}</div><div class="card-face card-back">${item.meaning}</div></div></div>`).join('');
+        elements.wordCardsContainer.innerHTML = cardsHTML;
+        const listHTML = wordbookData.map(item => `<tr><td>${item.word}</td><td>${item.meaning}</td></tr>`).join('');
+        elements.wordListTbody.innerHTML = listHTML;
+    }
+    function toggleWordbookView(showCards) {
+        document.getElementById('card-view').classList.toggle('active', showCards);
+        elements.cardViewBtn.classList.toggle('active', showCards);
+        document.getElementById('list-view').classList.toggle('active', !showCards);
+        elements.listViewBtn.classList.toggle('active', !showCards);
+    }
+    function loadMistakes() {
+        const stored = localStorage.getItem('savedMistakeIds_v5');
+        savedMistakeIds = stored ? JSON.parse(stored) : [];
+        updateHomePage();
+    }
+    function saveMistakes() {
+        localStorage.setItem('savedMistakeIds_v5', JSON.stringify(savedMistakeIds));
+        updateHomePage();
+    }
+    function updateHomePage() {
+        elements.reviewMistakesBtn.disabled = savedMistakeIds.length === 0;
+        elements.reviewMistakesBtn.textContent = `保存された復習テスト (${savedMistakeIds.length}問)`;
+    }
+
+    // --- Initial Setup ---
+    generateWordbookViews();
+    loadMistakes();
+    showHome();
+});
+</script>
+</body>
+</html>
